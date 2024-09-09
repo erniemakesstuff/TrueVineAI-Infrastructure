@@ -19,8 +19,10 @@ resource "aws_sqs_queue" "ledger_dlq_queue" {
 
 resource "aws_sqs_queue" "ledger_queue" {
   name                      = "${var.sqs_name_ledger}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.ledger_dlq_queue.arn
+    maxReiveCount = "${var.sqs_max_receive_count}"
   })
 }
 
@@ -30,8 +32,10 @@ resource "aws_sqs_queue" "media_text_dlq_queue" {
 
 resource "aws_sqs_queue" "media_text_queue" {
   name                      = "${var.sqs_name_media_text}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.media_text_dlq_queue.arn
+    maxReiveCount = "${var.sqs_max_receive_count}"
   })
 }
 

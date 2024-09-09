@@ -21,6 +21,16 @@ variable "topic_name_media" {
  default = "media-topic" 
 }
 
+variable "sqs_visibility_timeout" {
+ description = "Visibility timeout seconds"
+ default = 180
+}
+
+variable "sqs_max_receive_count" {
+ description = "Max times to recycle a message before putting onto DLQ"
+ default = 5
+}
+
 variable "sqs_name_ledger" {
  description = "Name of the SQS for ledger"
  default = "ledger-queue" 
