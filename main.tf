@@ -22,7 +22,7 @@ resource "aws_sqs_queue" "ledger_queue" {
   visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.ledger_dlq_queue.arn
-    maxReiveCount = 5
+    maxReceiveCount = "${var.sqs_max_receive_count}"
   })
 }
 
@@ -35,7 +35,7 @@ resource "aws_sqs_queue" "media_text_queue" {
   visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.media_text_dlq_queue.arn
-    maxReiveCount = 5
+    maxReceiveCount = "${var.sqs_max_receive_count}"
   })
 }
 
