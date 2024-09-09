@@ -1,11 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
-output "instance_ami" {
-  value = aws_instance.ubuntu.ami
+output "sns_ledger_topic_arn" {
+  value = "${aws_sns_topic.ledger_topic}"
 }
 
-output "instance_arn" {
-  value = aws_instance.ubuntu.arn
+output "sns_media_topic_arn" {
+  value = "${aws_sns_topic.media_topic}"
 }
-
