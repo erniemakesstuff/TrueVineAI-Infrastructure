@@ -12,3 +12,5 @@ Cleanup resources:
 
 Notes:
 AWS EventBridget to connect DynamoDB CDC to SNS is done manually because creation of source DynamoDB is done progromatically via application startum, not Terraform.
+
+Terraform dashboard: https://app.terraform.io/app/Bezalel-TrueVineAI/workspaces/TrueVineAI-Infrastructure/runs

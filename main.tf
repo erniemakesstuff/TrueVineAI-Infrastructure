@@ -60,7 +60,7 @@ resource "aws_s3_bucket" "media_bucket" {
 
 resource "aws_s3_bucket_intelligent_tiering_configuration" "media_bucket_configuration" {
   bucket = aws_s3_bucket.media_bucket.id
-  name   = "MediaBucketTiering"
+  name   = "TrueVineMediaBucketTiering"
 
   tiering {
     access_tier = "DEEP_ARCHIVE_ACCESS"

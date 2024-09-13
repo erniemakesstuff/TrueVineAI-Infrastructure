@@ -53,5 +53,5 @@ variable "sqs_name_dlq_media_text" {
 
 variable "s3_media_bucket_name" {
  description = "Name for the S3 bucket that stores generated media."
- default = "media-storage" 
+ default = "truevine-media-storage" 
 }
