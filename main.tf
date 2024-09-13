@@ -44,7 +44,7 @@ resource "aws_sns_topic_subscription" "ledger_to_sqs_target" {
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.ledger_queue.arn
 }
-
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # TODO, set filter policy on media SNS-SQS subscriptions.
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription#filter_policy
 # https://docs.aws.amazon.com/sns/latest/dg/string-value-matching.html#string-equals-ignore
@@ -52,4 +52,22 @@ resource "aws_sns_topic_subscription" "media_to_media_text_sqs_target" {
   topic_arn = aws_sns_topic.media_topic.arn
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.media_text_queue.arn
+}
+
+resource "aws_s3_bucket" "media_bucket" {
+  bucket = "${var.s3_media_bucket_name}"
+}
+
+resource "aws_s3_bucket_intelligent_tiering_configuration" "media_bucket_configuration" {
+  bucket = aws_s3_bucket.media_bucket.id
+  name   = "MediaBucketTiering"
+
+  tiering {
+    access_tier = "DEEP_ARCHIVE_ACCESS"
+    days        = 180
+  }
+  tiering {
+    access_tier = "ARCHIVE_ACCESS"
+    days        = 90
+  }
 }

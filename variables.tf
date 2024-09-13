@@ -51,8 +51,7 @@ variable "sqs_name_dlq_media_text" {
  default = "media-text-dlq-queue" 
 }
 
-
-variable "email_address" {
- description = "Email address for SNS subscription"
- default = "ernieMakesStuff@gmail.com"
+variable "s3_media_bucket_name" {
+ description = "Name for the S3 bucket that stores generated media."
+ default = "media-storage" 
 }

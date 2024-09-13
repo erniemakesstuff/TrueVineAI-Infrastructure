@@ -9,3 +9,6 @@ View proposed cloud changes.
 Cleanup resources:
 `terraform state list`
 `terraform state rm <resource>`
+
+Notes:
+AWS EventBridget to connect DynamoDB CDC to SNS is done manually because creation of source DynamoDB is done progromatically via application startum, not Terraform.
