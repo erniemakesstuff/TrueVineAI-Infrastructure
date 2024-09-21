@@ -102,7 +102,7 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_media" {
 }
 
 resource "aws_sqs_queue_policy" "media_text_queue_policy" {
-  queue_url = aws_sqs_queue.media_text_queue
+  queue_url = aws_sqs_queue.media_text_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media.json
 }
 
