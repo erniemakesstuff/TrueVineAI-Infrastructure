@@ -52,6 +52,7 @@ resource "aws_sns_topic_subscription" "media_to_media_text_sqs_target" {
   topic_arn = aws_sns_topic.media_topic.arn
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.media_text_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Text\"}]}"
 }
 
 data "aws_iam_policy_document" "allow_sns_to_sqs_ledger" {
