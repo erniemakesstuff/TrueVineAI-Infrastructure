@@ -107,8 +107,39 @@ resource "aws_sqs_queue_policy" "media_text_queue_policy" {
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media.json
 }
 
+# S3 Configurations ###############
 resource "aws_s3_bucket" "media_bucket" {
   bucket = "${var.s3_media_bucket_name}"
+}
+
+data "aws_iam_policy_document" "s3-topic-policy" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+
+    actions   = ["SNS:Publish"]
+    resources = ["arn:aws:sns:*:*:${var.topic_name_ledger}"]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_s3_bucket.media_bucket]
+    }
+  }
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.media_bucket.id
+
+  topic {
+    topic_arn     = aws_sns_topic.ledger_topic.arn
+    events        = ["s3:ObjectCreated:*"]
+    filter_suffix = ".log"
+  }
 }
 
 resource "aws_s3_bucket_intelligent_tiering_configuration" "media_bucket_configuration" {
