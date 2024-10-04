@@ -127,7 +127,7 @@ data "aws_iam_policy_document" "s3-topic-policy" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = [aws_s3_bucket.media_bucket]
+      values   = [aws_s3_bucket.media_bucket.arn]
     }
   }
 }
