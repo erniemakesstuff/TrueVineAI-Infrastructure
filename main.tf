@@ -139,7 +139,6 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   topic {
     topic_arn     = aws_sns_topic.ledger_topic.arn
     events        = ["s3:ObjectCreated:*"]
-    filter_suffix = ".log"
   }
 }
 
