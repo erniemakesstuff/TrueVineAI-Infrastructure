@@ -7,6 +7,7 @@ provider "aws" {
 
 resource "aws_sns_topic" "ledger_topic" {
   name = "${var.topic_name_ledger}"
+  policy = data.aws_iam_policy_document.s3-topic-policy.json
 }
 
 resource "aws_sns_topic" "media_topic" {
