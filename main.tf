@@ -26,34 +26,10 @@ resource "aws_sqs_queue" "ledger_queue" {
     maxReceiveCount = "${var.sqs_max_receive_count}"
   })
 }
-
-resource "aws_sqs_queue" "media_text_dlq_queue" {
-  name                      = "${var.sqs_name_dlq_media_text}"
-}
-
-resource "aws_sqs_queue" "media_text_queue" {
-  name                      = "${var.sqs_name_media_text}"
-  visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
-  redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.media_text_dlq_queue.arn
-    maxReceiveCount = "${var.sqs_max_receive_count}"
-  })
-}
-
 resource "aws_sns_topic_subscription" "ledger_to_sqs_target" {
   topic_arn = aws_sns_topic.ledger_topic.arn
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.ledger_queue.arn
-}
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# TODO, set filter policy on media SNS-SQS subscriptions.
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription#filter_policy
-# https://docs.aws.amazon.com/sns/latest/dg/string-value-matching.html#string-equals-ignore
-resource "aws_sns_topic_subscription" "media_to_media_text_sqs_target" {
-  topic_arn = aws_sns_topic.media_topic.arn
-  protocol  = "sqs"
-  endpoint  = aws_sqs_queue.media_text_queue.arn
-  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Text\"}]}"
 }
 
 data "aws_iam_policy_document" "allow_sns_to_sqs_ledger" {
@@ -82,6 +58,51 @@ resource "aws_sqs_queue_policy" "ledger_queue_policy" {
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_ledger.json
 }
 
+resource "aws_sqs_queue" "media_text_dlq_queue" {
+  name                      = "${var.sqs_name_dlq_media_text}"
+}
+
+resource "aws_sqs_queue" "media_text_queue" {
+  name                      = "${var.sqs_name_media_text}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.media_text_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
+
+resource "aws_sqs_queue" "media_render_dlq_queue" {
+  name                      = "${var.sqs_name_dlq_media_render}"
+}
+
+resource "aws_sqs_queue" "media_render_queue" {
+  name                      = "${var.sqs_name_media_render}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.media_render_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# TODO, set filter policy on media SNS-SQS subscriptions.
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription#filter_policy
+# https://docs.aws.amazon.com/sns/latest/dg/string-value-matching.html#string-equals-ignore
+resource "aws_sns_topic_subscription" "media_to_media_text_sqs_target" {
+  topic_arn = aws_sns_topic.media_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.media_text_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Text\"}]}"
+}
+
+resource "aws_sns_topic_subscription" "media_to_media_render_sqs_target" {
+  topic_arn = aws_sns_topic.media_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.media_render_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Render\"}]}"
+}
+
 data "aws_iam_policy_document" "allow_sns_to_sqs_media" {
   statement {
     sid    = "First"
@@ -93,7 +114,7 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_media" {
     }
 
     actions   = ["sqs:SendMessage"]
-    resources = [aws_sqs_queue.media_text_queue.arn]
+    resources = [aws_sqs_queue.media_text_queue.arn, aws_sqs_queue.media_render_queue.arn]
 
     condition {
       test     = "ArnEquals"
@@ -105,6 +126,11 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_media" {
 
 resource "aws_sqs_queue_policy" "media_text_queue_policy" {
   queue_url = aws_sqs_queue.media_text_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media.json
+}
+
+resource "aws_sqs_queue_policy" "media_render_queue_policy" {
+  queue_url = aws_sqs_queue.media_render_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media.json
 }
 

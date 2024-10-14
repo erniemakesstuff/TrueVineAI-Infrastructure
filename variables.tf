@@ -51,6 +51,17 @@ variable "sqs_name_dlq_media_text" {
  default = "media-text-dlq-queue" 
 }
 
+
+variable "sqs_name_media_render" {
+ description = "Name of the SQS for media render"
+ default = "media-render-queue" 
+}
+
+variable "sqs_name_dlq_media_render" {
+ description = "Name of the SQS for DLQ render"
+ default = "media-render-dlq-queue" 
+}
+
 variable "s3_media_bucket_name" {
  description = "Name for the S3 bucket that stores generated media."
  default = "truevine-media-storage" 
