@@ -103,7 +103,7 @@ resource "aws_sns_topic_subscription" "media_to_media_render_sqs_target" {
   filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Render\"}]}"
 }
 
-data "aws_iam_policy_document" "allow_sns_to_sqs_media" {
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_text" {
   statement {
     sid    = "First"
     effect = "Allow"
@@ -114,7 +114,28 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_media" {
     }
 
     actions   = ["sqs:SendMessage"]
-    resources = [aws_sqs_queue.media_text_queue.arn, aws_sqs_queue.media_render_queue.arn]
+    resources = [aws_sqs_queue.media_text_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.media_topic.arn]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_render" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.media_render_queue.arn]
 
     condition {
       test     = "ArnEquals"
@@ -126,12 +147,12 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_media" {
 
 resource "aws_sqs_queue_policy" "media_text_queue_policy" {
   queue_url = aws_sqs_queue.media_text_queue.id
-  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media.json
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_text.json
 }
 
 resource "aws_sqs_queue_policy" "media_render_queue_policy" {
   queue_url = aws_sqs_queue.media_render_queue.id
-  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media.json
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_render.json
 }
 
 # S3 Configurations ###############
