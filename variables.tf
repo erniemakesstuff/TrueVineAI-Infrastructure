@@ -26,9 +26,14 @@ variable "sqs_visibility_timeout" {
  default = 180
 }
 
+variable "sqs_visibility_timeout_media" {
+ description = "Visibility timeout seconds for media queues"
+ default = 360
+}
+
 variable "sqs_max_receive_count" {
  description = "Max times to recycle a message before putting onto DLQ"
- default = 5
+ default = 15
 }
 
 variable "sqs_name_ledger" {
