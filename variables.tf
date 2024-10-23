@@ -13,7 +13,7 @@ variable "regionalternate" {
 
 variable "topic_name_ledger" {
  description = "Name of the SNS topic for ledger"
- default = "ledger-topic" 
+ default = "state-callback-topic" 
 }
 
 variable "topic_name_media" {
@@ -26,9 +26,15 @@ variable "sqs_visibility_timeout" {
  default = 180
 }
 
-variable "sqs_visibility_timeout_media" {
- description = "Visibility timeout seconds for media queues"
- default = 360
+variable "sqs_visibility_timeout_media_text" {
+ description = "Visibility timeout seconds for media text queues"
+ default = 180
+}
+
+# TODO: Adjust this based on actual metrics for render times.
+variable "sqs_visibility_timeout_media_visual" {
+ description = "Visibility timeout seconds for media visual queues"
+ default = 3600
 }
 
 variable "sqs_max_receive_count" {
@@ -38,12 +44,12 @@ variable "sqs_max_receive_count" {
 
 variable "sqs_name_ledger" {
  description = "Name of the SQS for ledger"
- default = "ledger-queue" 
+ default = "state-callback-queue" 
 }
 
 variable "sqs_name_dlq_ledger" {
  description = "Name of the SQS for DLQ ledger"
- default = "ledger-dlq-queue" 
+ default = "state-callback-dlq-queue" 
 }
 
 variable "sqs_name_media_text" {
