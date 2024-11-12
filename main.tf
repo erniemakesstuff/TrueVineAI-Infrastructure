@@ -127,7 +127,7 @@ resource "aws_sqs_queue" "media_sfx_queue" {
 }
 
 resource "aws_sqs_queue" "media_music_dlq_queue" {
-  name                      = "${var.sqs_name_media_music}"
+  name                      = "${var.sqs_name_dlq_media_music}"
 }
 
 resource "aws_sqs_queue" "media_music_queue" {
@@ -140,7 +140,7 @@ resource "aws_sqs_queue" "media_music_queue" {
 }
 
 resource "aws_sqs_queue" "media_vocal_dlq_queue" {
-  name                      = "${var.sqs_name_media_vocal}"
+  name                      = "${var.sqs_name_dlq_media_vocal}"
 }
 
 resource "aws_sqs_queue" "media_vocal_queue" {
@@ -428,12 +428,12 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "media_bucket_configu
   tiering {
     # Few hours access time.
     access_tier = "DEEP_ARCHIVE_ACCESS"
-    days        = 545
+    days        = 635
   }
 
   tiering {
     # 5minutes to few hours access time depending on object size.
     access_tier = "ARCHIVE_ACCESS"
-    days        = 365
+    days        = 455
   }
 }
