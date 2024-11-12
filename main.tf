@@ -426,11 +426,13 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "media_bucket_configu
   name   = "TrueVineMediaBucketTiering"
 
   tiering {
+    # Few hours access time.
     access_tier = "DEEP_ARCHIVE_ACCESS"
-    days        = 365
+    days        = 545
   }
   tiering {
+    # 5minutes to few hours access time depending on object size.
     access_tier = "ARCHIVE_ACCESS"
-    days        = 90
+    days        = 180
   }
 }
