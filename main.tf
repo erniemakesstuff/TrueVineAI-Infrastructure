@@ -430,9 +430,10 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "media_bucket_configu
     access_tier = "DEEP_ARCHIVE_ACCESS"
     days        = 545
   }
+
   tiering {
     # 5minutes to few hours access time depending on object size.
     access_tier = "ARCHIVE_ACCESS"
-    days        = 180
+    days        = 365
   }
 }
