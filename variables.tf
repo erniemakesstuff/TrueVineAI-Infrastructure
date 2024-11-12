@@ -37,6 +37,11 @@ variable "sqs_visibility_timeout_media_visual" {
  default = 3600
 }
 
+variable "sqs_visibility_timeout_media_audio" {
+ description = "Visibility timeout seconds for media visual queues"
+ default = 1500
+}
+
 variable "sqs_max_receive_count" {
  description = "Max times to recycle a message before putting onto DLQ"
  default = 45
@@ -71,6 +76,56 @@ variable "sqs_name_media_render" {
 variable "sqs_name_dlq_media_render" {
  description = "Name of the SQS for DLQ render"
  default = "media-render-dlq-queue" 
+}
+
+variable "sqs_name_media_image" {
+ description = "Name of the SQS for media image"
+ default = "media-image-queue" 
+}
+
+variable "sqs_name_dlq_media_image" {
+ description = "Name of the SQS for DLQ image"
+ default = "media-image-dlq-queue" 
+}
+
+variable "sqs_name_media_video" {
+ description = "Name of the SQS for media video"
+ default = "media-video-queue" 
+}
+
+variable "sqs_name_dlq_media_video" {
+ description = "Name of the SQS for DLQ video"
+ default = "media-video-dlq-queue" 
+}
+
+variable "sqs_name_media_sfx" {
+ description = "Name of the SQS for media sound effects"
+ default = "media-sfx-queue" 
+}
+
+variable "sqs_name_dlq_media_sfx" {
+ description = "Name of the SQS for DLQ sound effects"
+ default = "media-sfx-dlq-queue" 
+}
+
+variable "sqs_name_media_music" {
+ description = "Name of the SQS for media music"
+ default = "media-music-queue" 
+}
+
+variable "sqs_name_dlq_media_music" {
+ description = "Name of the SQS for DLQ music"
+ default = "media-music-dlq-queue" 
+}
+
+variable "sqs_name_media_vocal" {
+ description = "Name of the SQS for media vocal"
+ default = "media-vocal-queue" 
+}
+
+variable "sqs_name_dlq_media_vocal" {
+ description = "Name of the SQS for DLQ vocal"
+ default = "media-vocal-dlq-queue" 
 }
 
 variable "s3_media_bucket_name" {

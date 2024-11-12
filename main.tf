@@ -58,6 +58,9 @@ resource "aws_sqs_queue_policy" "ledger_queue_policy" {
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_ledger.json
 }
 
+## !!!!!!!!!!!!!!!
+## Media Queues ##
+
 resource "aws_sqs_queue" "media_text_dlq_queue" {
   name                      = "${var.sqs_name_dlq_media_text}"
 }
@@ -84,6 +87,70 @@ resource "aws_sqs_queue" "media_render_queue" {
   })
 }
 
+resource "aws_sqs_queue" "media_image_dlq_queue" {
+  name                      = "${var.sqs_name_dlq_media_image}"
+}
+
+resource "aws_sqs_queue" "media_image_queue" {
+  name                      = "${var.sqs_name_media_image}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_visual}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.media_image_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
+
+resource "aws_sqs_queue" "media_video_dlq_queue" {
+  name                      = "${var.sqs_name_dlq_media_video}"
+}
+
+resource "aws_sqs_queue" "media_video_queue" {
+  name                      = "${var.sqs_name_media_video}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_visual}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.media_video_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
+
+resource "aws_sqs_queue" "media_sfx_dlq_queue" {
+  name                      = "${var.sqs_name_dlq_media_sfx}"
+}
+
+resource "aws_sqs_queue" "media_sfx_queue" {
+  name                      = "${var.sqs_name_media_sfx}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_audio}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.media_sfx_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
+
+resource "aws_sqs_queue" "media_music_dlq_queue" {
+  name                      = "${var.sqs_name_media_music}"
+}
+
+resource "aws_sqs_queue" "media_music_queue" {
+  name                      = "${var.sqs_name_media_music}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_audio}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.media_music_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
+
+resource "aws_sqs_queue" "media_vocal_dlq_queue" {
+  name                      = "${var.sqs_name_media_vocal}"
+}
+
+resource "aws_sqs_queue" "media_vocal_queue" {
+  name                      = "${var.sqs_name_media_vocal}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_audio}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.media_vocal_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # TODO, set filter policy on media SNS-SQS subscriptions.
@@ -101,6 +168,41 @@ resource "aws_sns_topic_subscription" "media_to_media_render_sqs_target" {
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.media_render_queue.arn
   filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Render\"}]}"
+}
+
+resource "aws_sns_topic_subscription" "media_to_media_image_sqs_target" {
+  topic_arn = aws_sns_topic.media_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.media_image_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Image\"}]}"
+}
+
+resource "aws_sns_topic_subscription" "media_to_media_video_sqs_target" {
+  topic_arn = aws_sns_topic.media_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.media_video_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Video\"}]}"
+}
+
+resource "aws_sns_topic_subscription" "media_to_media_sfx_sqs_target" {
+  topic_arn = aws_sns_topic.media_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.media_sfx_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Sfx\"}]}"
+}
+
+resource "aws_sns_topic_subscription" "media_to_media_music_sqs_target" {
+  topic_arn = aws_sns_topic.media_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.media_music_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Music\"}]}"
+}
+
+resource "aws_sns_topic_subscription" "media_to_media_vocal_sqs_target" {
+  topic_arn = aws_sns_topic.media_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.media_vocal_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Vocal\"}]}"
 }
 
 data "aws_iam_policy_document" "allow_sns_to_sqs_media_text" {
@@ -145,6 +247,111 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_media_render" {
   }
 }
 
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_image" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.media_image_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.media_topic.arn]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_video" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.media_video_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.media_topic.arn]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_vocal" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.media_vocal_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.media_topic.arn]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_sfx" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.media_sfx_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.media_topic.arn]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_music" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.media_music_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.media_topic.arn]
+    }
+  }
+}
+
 resource "aws_sqs_queue_policy" "media_text_queue_policy" {
   queue_url = aws_sqs_queue.media_text_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_text.json
@@ -153,6 +360,31 @@ resource "aws_sqs_queue_policy" "media_text_queue_policy" {
 resource "aws_sqs_queue_policy" "media_render_queue_policy" {
   queue_url = aws_sqs_queue.media_render_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_render.json
+}
+
+resource "aws_sqs_queue_policy" "media_image_queue_policy" {
+  queue_url = aws_sqs_queue.media_image_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_image.json
+}
+
+resource "aws_sqs_queue_policy" "media_video_queue_policy" {
+  queue_url = aws_sqs_queue.media_video_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_video.json
+}
+
+resource "aws_sqs_queue_policy" "media_vocal_queue_policy" {
+  queue_url = aws_sqs_queue.media_vocal_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_vocal.json
+}
+
+resource "aws_sqs_queue_policy" "media_sfx_queue_policy" {
+  queue_url = aws_sqs_queue.media_sfx_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_sfx.json
+}
+
+resource "aws_sqs_queue_policy" "media_music_queue_policy" {
+  queue_url = aws_sqs_queue.media_music_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_music.json
 }
 
 # S3 Configurations ###############
@@ -195,7 +427,7 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "media_bucket_configu
 
   tiering {
     access_tier = "DEEP_ARCHIVE_ACCESS"
-    days        = 180
+    days        = 365
   }
   tiering {
     access_tier = "ARCHIVE_ACCESS"
