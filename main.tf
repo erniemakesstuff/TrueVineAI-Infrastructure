@@ -80,7 +80,7 @@ resource "aws_sqs_queue" "media_render_dlq_queue" {
 
 resource "aws_sqs_queue" "media_render_queue" {
   name                      = "${var.sqs_name_media_render}"
-  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_visual}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_render}"
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.media_render_dlq_queue.arn
     maxReceiveCount = "${var.sqs_max_receive_count}"
@@ -93,7 +93,7 @@ resource "aws_sqs_queue" "media_image_dlq_queue" {
 
 resource "aws_sqs_queue" "media_image_queue" {
   name                      = "${var.sqs_name_media_image}"
-  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_visual}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_image}"
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.media_image_dlq_queue.arn
     maxReceiveCount = "${var.sqs_max_receive_count}"
@@ -106,7 +106,7 @@ resource "aws_sqs_queue" "media_video_dlq_queue" {
 
 resource "aws_sqs_queue" "media_video_queue" {
   name                      = "${var.sqs_name_media_video}"
-  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_visual}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout_media_video}"
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.media_video_dlq_queue.arn
     maxReceiveCount = "${var.sqs_max_receive_count}"

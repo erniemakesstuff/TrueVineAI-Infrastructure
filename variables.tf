@@ -32,14 +32,24 @@ variable "sqs_visibility_timeout_media_text" {
 }
 
 # TODO: Adjust this based on actual metrics for render times.
-variable "sqs_visibility_timeout_media_visual" {
- description = "Visibility timeout seconds for media visual queues"
- default = 3600
+variable "sqs_visibility_timeout_media_render" {
+ description = "Visibility timeout seconds for media render queues"
+ default = 2700
+}
+
+variable "sqs_visibility_timeout_media_image" {
+ description = "Visibility timeout seconds for media image queues"
+ default = 600
+}
+
+variable "sqs_visibility_timeout_media_video" {
+ description = "Visibility timeout seconds for media video queues"
+ default = 1800
 }
 
 variable "sqs_visibility_timeout_media_audio" {
- description = "Visibility timeout seconds for media visual queues"
- default = 1500
+ description = "Visibility timeout seconds for media audio queues"
+ default = 600
 }
 
 variable "sqs_max_receive_count" {
