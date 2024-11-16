@@ -430,7 +430,7 @@ resource "aws_s3_bucket_public_access_block" "block_public_access" {
 resource "aws_s3_bucket_acl" "media_bucket_acl" {
   bucket = aws_s3_bucket.media_bucket.id
   acl    = "public-read"
-
+  
   depends_on = [
     aws_s3_bucket_ownership_controls.media_bucket_ownership,
     aws_s3_bucket_public_access_block.block_public_access,
@@ -446,7 +446,8 @@ data "aws_iam_policy_document" "s3_media_bucket_policy" {
     ]
     effect = "Allow"
     resources = [
-      "${aws_s3_bucket.media_bucket.arn}/*"
+      "${aws_s3_bucket.media_bucket.arn}/Image*",
+      "${aws_s3_bucket.media_bucket.arn}/Render*"
     ]
     principals {
       type        = "*"
