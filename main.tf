@@ -412,6 +412,13 @@ data "aws_iam_policy_document" "s3-topic-policy" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "media_bucket_ownership" {
+  bucket = aws_s3_bucket.media_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "block_public_access" {
   bucket = aws_s3_bucket.media_bucket.id
   block_public_acls       = false
@@ -420,6 +427,39 @@ resource "aws_s3_bucket_public_access_block" "block_public_access" {
   restrict_public_buckets = false
 }
 
+resource "aws_s3_bucket_acl" "media_bucket_acl" {
+  bucket = aws_s3_bucket.media_bucket.id
+  acl    = "public-read"
+
+  depends_on = [
+    aws_s3_bucket_ownership_controls.media_bucket_ownership,
+    aws_s3_bucket_public_access_block.block_public_access,
+  ]
+}
+
+data "aws_iam_policy_document" "s3_media_bucket_policy" {
+  policy_id = "s3_media_bucket_read"
+
+  statement {
+    actions = [
+      "s3:GetObject"
+    ]
+    effect = "Allow"
+    resources = [
+      "${aws_s3_bucket.media_bucket.arn}/*"
+    ]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    sid = "S3BucketPublicAccess"
+  }
+}
+
+resource "aws_s3_bucket_policy" "s3_bucket_policy_attach" {
+  bucket = aws_s3_bucket.media_bucket.id
+  policy = data.aws_iam_policy_document.s3_media_bucket_policy.json
+}
 
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
