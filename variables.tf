@@ -150,5 +150,5 @@ variable "s3_tmp_bucket_name" {
 
 variable "s3_web_bucket_name" {
  description = "Name for the S3 bucket that serves SPA."
- default = "web"
+ default = "kherem-web"
 }
