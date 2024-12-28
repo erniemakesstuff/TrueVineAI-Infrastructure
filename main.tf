@@ -152,6 +152,19 @@ resource "aws_sqs_queue" "media_vocal_queue" {
   })
 }
 
+resource "aws_sqs_queue" "media_context_dlq_queue" {
+  name                      = "${var.sqs_name_dlq_media_context}"
+}
+
+resource "aws_sqs_queue" "media_context_queue" {
+  name                      = "${var.sqs_name_media_context}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.media_context_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
+
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # TODO, set filter policy on media SNS-SQS subscriptions.
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription#filter_policy
@@ -203,6 +216,13 @@ resource "aws_sns_topic_subscription" "media_to_media_vocal_sqs_target" {
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.media_vocal_queue.arn
   filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Vocal\"}]}"
+}
+
+resource "aws_sns_topic_subscription" "media_to_media_context_sqs_target" {
+  topic_arn = aws_sns_topic.media_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.media_context_queue.arn
+  filter_policy = "{\"filterKey\": [{\"equals-ignore-case\": \"Context\"}]}"
 }
 
 data "aws_iam_policy_document" "allow_sns_to_sqs_media_text" {
@@ -289,27 +309,6 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_media_video" {
   }
 }
 
-data "aws_iam_policy_document" "allow_sns_to_sqs_media_vocal" {
-  statement {
-    sid    = "First"
-    effect = "Allow"
-
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-
-    actions   = ["sqs:SendMessage"]
-    resources = [aws_sqs_queue.media_vocal_queue.arn]
-
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values   = [aws_sns_topic.media_topic.arn]
-    }
-  }
-}
-
 data "aws_iam_policy_document" "allow_sns_to_sqs_media_sfx" {
   statement {
     sid    = "First"
@@ -352,6 +351,48 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_media_music" {
   }
 }
 
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_vocal" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.media_vocal_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.media_topic.arn]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "allow_sns_to_sqs_media_context" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.media_context_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.media_topic.arn]
+    }
+  }
+}
+
 resource "aws_sqs_queue_policy" "media_text_queue_policy" {
   queue_url = aws_sqs_queue.media_text_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_text.json
@@ -372,11 +413,6 @@ resource "aws_sqs_queue_policy" "media_video_queue_policy" {
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_video.json
 }
 
-resource "aws_sqs_queue_policy" "media_vocal_queue_policy" {
-  queue_url = aws_sqs_queue.media_vocal_queue.id
-  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_vocal.json
-}
-
 resource "aws_sqs_queue_policy" "media_sfx_queue_policy" {
   queue_url = aws_sqs_queue.media_sfx_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_sfx.json
@@ -385,6 +421,11 @@ resource "aws_sqs_queue_policy" "media_sfx_queue_policy" {
 resource "aws_sqs_queue_policy" "media_music_queue_policy" {
   queue_url = aws_sqs_queue.media_music_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_music.json
+}
+
+resource "aws_sqs_queue_policy" "media_context_queue_policy" {
+  queue_url = aws_sqs_queue.media_context_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_context.json
 }
 
 # S3 Configurations ###############

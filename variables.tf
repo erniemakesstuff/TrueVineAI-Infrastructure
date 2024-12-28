@@ -138,6 +138,16 @@ variable "sqs_name_dlq_media_vocal" {
  default = "media-vocal-dlq-queue" 
 }
 
+variable "sqs_name_media_context" {
+ description = "Name of the SQS for media context"
+ default = "media-context-queue" 
+}
+
+variable "sqs_name_dlq_media_context" {
+ description = "Name of the SQS for DLQ context"
+ default = "media-context-dlq-queue" 
+}
+
 variable "s3_media_bucket_name" {
  description = "Name for the S3 bucket that stores generated media."
  default = "truevine-media-storage" 
