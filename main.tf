@@ -423,6 +423,11 @@ resource "aws_sqs_queue_policy" "media_music_queue_policy" {
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_music.json
 }
 
+resource "aws_sqs_queue_policy" "media_vocal_queue_policy" {
+  queue_url = aws_sqs_queue.media_vocal_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_vocal.json
+}
+
 resource "aws_sqs_queue_policy" "media_context_queue_policy" {
   queue_url = aws_sqs_queue.media_context_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_media_context.json
