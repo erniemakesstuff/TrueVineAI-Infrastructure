@@ -10,10 +10,16 @@ resource "aws_sns_topic" "ledger_topic" {
   policy = data.aws_iam_policy_document.s3-topic-policy.json
 }
 
+resource "aws_sns_topic" "published_topic" {
+  name = "${var.topic_name_published}"
+  policy = data.aws_iam_policy_document.s3-topic-policy.json
+}
+
 resource "aws_sns_topic" "media_topic" {
   name = "${var.topic_name_media}"
 }
 
+### Ledger Queues
 resource "aws_sqs_queue" "ledger_dlq_queue" {
   name                      = "${var.sqs_name_dlq_ledger}"
 }
@@ -26,6 +32,7 @@ resource "aws_sqs_queue" "ledger_queue" {
     maxReceiveCount = "${var.sqs_max_receive_count}"
   })
 }
+
 resource "aws_sns_topic_subscription" "ledger_to_sqs_target" {
   topic_arn = aws_sns_topic.ledger_topic.arn
   protocol  = "sqs"
@@ -56,6 +63,53 @@ data "aws_iam_policy_document" "allow_sns_to_sqs_ledger" {
 resource "aws_sqs_queue_policy" "ledger_queue_policy" {
   queue_url = aws_sqs_queue.ledger_queue.id
   policy    = data.aws_iam_policy_document.allow_sns_to_sqs_ledger.json
+}
+
+### Published Queues
+
+resource "aws_sqs_queue" "published_dlq_queue" {
+  name                      = "${var.sqs_name_dlq_published}"
+}
+
+resource "aws_sqs_queue" "published_queue" {
+  name                      = "${var.sqs_name_published}"
+  visibility_timeout_seconds = "${var.sqs_visibility_timeout}"
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.published_dlq_queue.arn
+    maxReceiveCount = "${var.sqs_max_receive_count}"
+  })
+}
+
+resource "aws_sns_topic_subscription" "published_to_sqs_target" {
+  topic_arn = aws_sns_topic.published_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.published_queue.arn
+}
+
+data "aws_iam_policy_document" "allow_sns_to_sqs_published" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.published_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_sns_topic.published_topic.arn]
+    }
+  }
+}
+
+resource "aws_sqs_queue_policy" "published_queue_policy" {
+  queue_url = aws_sqs_queue.published_queue.id
+  policy    = data.aws_iam_policy_document.allow_sns_to_sqs_published.json
 }
 
 ## !!!!!!!!!!!!!!!

@@ -21,6 +21,11 @@ variable "topic_name_media" {
  default = "media-topic" 
 }
 
+variable "topic_name_published" {
+ description = "Name of the SNS topic for published media"
+ default = "publish-complete" 
+}
+
 variable "sqs_visibility_timeout" {
  description = "Visibility timeout seconds"
  default = 180
@@ -65,6 +70,16 @@ variable "sqs_name_ledger" {
 variable "sqs_name_dlq_ledger" {
  description = "Name of the SQS for DLQ ledger"
  default = "state-callback-dlq-queue" 
+}
+
+variable "sqs_name_published" {
+ description = "Name of the SQS for published events"
+ default = "publish-complete-queue" 
+}
+
+variable "sqs_name_dlq_published" {
+ description = "Name of the SQS for DLQ published events"
+ default = "publish-complete-dlq-queue" 
 }
 
 variable "sqs_name_media_text" {
