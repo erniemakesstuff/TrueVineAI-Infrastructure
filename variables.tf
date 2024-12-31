@@ -59,7 +59,7 @@ variable "sqs_visibility_timeout_media_audio" {
 
 variable "sqs_max_receive_count" {
  description = "Max times to recycle a message before putting onto DLQ"
- default = 45
+ default = 15
 }
 
 variable "sqs_name_ledger" {
