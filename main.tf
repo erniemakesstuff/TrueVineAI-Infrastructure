@@ -611,7 +611,7 @@ resource "aws_s3_bucket_ownership_controls" "bitloot_media_bucket_ownership" {
 }
 
 resource "aws_s3_bucket_public_access_block" "bitloot_block_public_access" {
-  bucket = aws_s3_bucket.media_bucket.id
+  bucket = aws_s3_bucket.bitloot_media_bucket.id
   block_public_acls       = false
   block_public_policy     = false
   ignore_public_acls      = false
@@ -637,7 +637,7 @@ data "aws_iam_policy_document" "s3_bitloot_media_bucket_policy" {
     ]
     effect = "Allow"
     resources = [
-      "${aws_s3_bucket.bitloot_media_bucket.arn}*"
+      "${aws_s3_bucket.bitloot_media_bucket.arn}/*"
     ]
     principals {
       type        = "*"
