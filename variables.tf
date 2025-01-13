@@ -168,6 +168,11 @@ variable "s3_media_bucket_name" {
  default = "truevine-media-storage" 
 }
 
+variable "s3_bitloot_media_bucket_name" {
+ description = "Name for the S3 bucket that stores media files"
+ default = "bitloot-media-storage" 
+}
+
 variable "s3_tmp_bucket_name" {
  description = "Name for the S3 bucket that stores transitory files."
  default = "truevine-tmp-storage"
