@@ -599,7 +599,7 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "bitloot_media_bucket
   tiering {
     # 5minutes to few hours access time depending on object size.
     access_tier = "ARCHIVE_ACCESS"
-    days        = 910
+    days        = 700
   }
 }
 
