@@ -547,7 +547,9 @@ data "aws_iam_policy_document" "s3_media_bucket_policy" {
     effect = "Allow"
     resources = [
       "${aws_s3_bucket.media_bucket.arn}/Image*",
-      "${aws_s3_bucket.media_bucket.arn}/Render*"
+      "${aws_s3_bucket.media_bucket.arn}/Render*",
+      "${aws_s3_bucket.media_bucket.arn}/Video*",
+      "${aws_s3_bucket.media_bucket.arn}/Music*"
     ]
     principals {
       type        = "*"
