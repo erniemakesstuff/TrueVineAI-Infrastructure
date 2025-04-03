@@ -492,6 +492,23 @@ resource "aws_s3_bucket" "media_bucket" {
   bucket = "${var.s3_media_bucket_name}"
 }
 
+resource "aws_s3_bucket_cors_configuration" "cors_s3_media" {
+  bucket = aws_s3_bucket.media_bucket.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "PUT", "POST", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+
+  cors_rule {
+    allowed_methods = ["GET", "PUT", "POST", "HEAD"]
+    allowed_origins = ["*"]
+  }
+}
+
 data "aws_iam_policy_document" "s3-topic-policy" {
   statement {
     effect = "Allow"
