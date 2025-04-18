@@ -566,7 +566,11 @@ data "aws_iam_policy_document" "s3_media_bucket_policy" {
       "${aws_s3_bucket.media_bucket.arn}/Image*",
       "${aws_s3_bucket.media_bucket.arn}/Render*",
       "${aws_s3_bucket.media_bucket.arn}/Video*",
-      "${aws_s3_bucket.media_bucket.arn}/Music*"
+      "${aws_s3_bucket.media_bucket.arn}/Music*",
+      "${aws_s3_bucket.media_bucket.arn}/*.jpg",
+      "${aws_s3_bucket.media_bucket.arn}/*.jpeg",
+      "${aws_s3_bucket.media_bucket.arn}/*.png",
+      "${aws_s3_bucket.media_bucket.arn}/*.mp4"
     ]
     principals {
       type        = "*"
