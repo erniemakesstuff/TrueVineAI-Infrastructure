@@ -5,6 +5,93 @@ provider "aws" {
   region = var.region
 }
 
+# VPC
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
+
+  tags = {
+    Name = "main"
+  }
+}
+
+# Subnets
+resource "aws_subnet" "public_subnet_az1" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidr_az1
+  availability_zone       = "${var.region}a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-az1"
+  }
+}
+
+resource "aws_subnet" "public_subnet_az2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidr_az2
+  availability_zone       = "${var.region}b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-az2"
+  }
+}
+
+# Internet Gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "main"
+  }
+}
+
+# Route Table
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = {
+    Name = "public"
+  }
+}
+
+# Route Table Associations
+resource "aws_route_table_association" "public_az1" {
+  subnet_id      = aws_subnet.public_subnet_az1.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_az2" {
+  subnet_id      = aws_subnet.public_subnet_az2.id
+  route_table_id = aws_route_table.public.id
+}
+
+# Security Group for ASG
+resource "aws_security_group" "asg_sg" {
+  name        = "asg_security_group"
+  description = "Allow inbound HTTP traffic to ASG"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_sns_topic" "ledger_topic" {
   name = "${var.topic_name_ledger}"
   policy = data.aws_iam_policy_document.s3-topic-policy.json
@@ -683,4 +770,67 @@ resource "aws_s3_bucket_acl" "web_bucket_acl" {
 
   bucket = aws_s3_bucket.web_bucket.id
   acl    = "public-read"
+}
+
+# Launch Configuration for ASG
+resource "aws_launch_configuration" "app_launch_config" {
+  name_prefix          = "app-launch-config-"
+  image_id             = "ami-0abcdef1234567890" # Replace with a valid Linux AMI ID
+  instance_type        = "t2.micro" # Smallest available instance type
+  security_groups      = [aws_security_group.asg_sg.id]
+
+  # User data script to install GoLang and update Linux
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo yum update -y
+    sudo yum install -y golang
+    # Add commands here to download and run your GoLang service
+  EOF
+}
+
+# Auto Scaling Group
+resource "aws_autoscaling_group" "app_asg" {
+  name                      = "app-asg"
+  launch_configuration      = aws_launch_configuration.app_launch_config.name
+  vpc_zone_identifier       = [aws_subnet.public_subnet_az1.id, aws_subnet.public_subnet_az2.id]
+  min_size                  = 1
+  max_size                  = 3
+  desired_capacity          = 1
+  health_check_type         = "ELB"
+  health_check_grace_period = 300
+
+  tag {
+    key                 = "Name"
+    value               = "app-instance"
+    propagate_at_launch = true
+  }
+}
+
+# Application Load Balancer
+resource "aws_lb" "app_lb" {
+  name               = "app-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.asg_sg.id]
+  subnets            = [aws_subnet.public_subnet_az1.id, aws_subnet.public_subnet_az2.id]
+}
+
+# LB Target Group
+resource "aws_lb_target_group" "app_tg" {
+  name     = "app-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+}
+
+# LB Listener
+resource "aws_lb_listener" "http_listener" {
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app_tg.arn
+  }
 }
