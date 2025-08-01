@@ -799,11 +799,7 @@ resource "aws_launch_template" "app_launch_template" {
 # Auto Scaling Group
 resource "aws_autoscaling_group" "app_asg" {
   name                      = "app-asg"
-  launch_template {
-    id = aws_launch_template.app_launch_template.id
-  }
   vpc_zone_identifier       = [aws_subnet.public_subnet_az1.id, aws_subnet.public_subnet_az2.id]
-  min_size                  = 1
   max_size = 3
   launch_template {
     id = aws_launch_template.app_launch_template.id
