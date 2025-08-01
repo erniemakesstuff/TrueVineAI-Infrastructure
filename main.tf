@@ -779,30 +779,35 @@ resource "aws_s3_bucket_acl" "web_bucket_acl" {
   acl    = "public-read"
 }
 
-# Launch Configuration for ASG
-resource "aws_launch_configuration" "app_launch_config" {
-  name_prefix          = "app-launch-config-"
-  image_id             = "ami-03b322c510c7cf8e3" # Replace with a valid Linux AMI ID
-  instance_type        = "t2.micro" # Smallest available instance type
-  security_groups      = [aws_security_group.asg_sg.id]
-  key_name             = "dev-ssh"
+# Launch Template for ASG
+resource "aws_launch_template" "app_launch_template" {
+  name_prefix = "app-launch-template-"
+  image_id      = "ami-03b322c510c7cf8e3" # Replace with a valid Linux AMI ID
+  instance_type = "t2.micro" # Smallest available instance type
+  key_name      = "dev-ssh"
+  vpc_security_group_ids = [aws_security_group.asg_sg.id]
 
-  # User data script to install GoLang and update Linux
-  user_data = <<-EOF
+  user_data = base64encode(<<-EOF
     #!/bin/bash
     sudo yum update -y
     sudo yum install -y golang
     # Add commands here to download and run your GoLang service
   EOF
+  )
 }
 
 # Auto Scaling Group
 resource "aws_autoscaling_group" "app_asg" {
   name                      = "app-asg"
-  launch_configuration      = aws_launch_configuration.app_launch_config.name
+  launch_template {
+    id = aws_launch_template.app_launch_template.id
+  }
   vpc_zone_identifier       = [aws_subnet.public_subnet_az1.id, aws_subnet.public_subnet_az2.id]
   min_size                  = 1
-  max_size                  = 3
+  max_size = 3
+  launch_template {
+    id = aws_launch_template.app_launch_template.id
+  }
   desired_capacity          = 1
   health_check_type         = "ELB"
   health_check_grace_period = 300
