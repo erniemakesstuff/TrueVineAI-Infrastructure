@@ -84,6 +84,13 @@ resource "aws_security_group" "asg_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # WARNING: Allowing SSH from 0.0.0.0/0 is a security risk. Restrict this to your IP or a trusted network.
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -778,6 +785,7 @@ resource "aws_launch_configuration" "app_launch_config" {
   image_id             = "ami-03b322c510c7cf8e3" # Replace with a valid Linux AMI ID
   instance_type        = "t2.micro" # Smallest available instance type
   security_groups      = [aws_security_group.asg_sg.id]
+  key_name             = "dev-ssh"
 
   # User data script to install GoLang and update Linux
   user_data = <<-EOF
