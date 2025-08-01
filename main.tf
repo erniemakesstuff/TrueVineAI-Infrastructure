@@ -775,7 +775,7 @@ resource "aws_s3_bucket_acl" "web_bucket_acl" {
 # Launch Configuration for ASG
 resource "aws_launch_configuration" "app_launch_config" {
   name_prefix          = "app-launch-config-"
-  image_id             = "ami-0abcdef1234567890" # Replace with a valid Linux AMI ID
+  image_id             = "ami-03b322c510c7cf8e3" # Replace with a valid Linux AMI ID
   instance_type        = "t2.micro" # Smallest available instance type
   security_groups      = [aws_security_group.asg_sg.id]
 
