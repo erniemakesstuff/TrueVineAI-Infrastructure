@@ -4,11 +4,13 @@
 variable "region" {
   description = "AWS region"
   default     = "us-west-2"
+  default = "us-east-1"
 }
 
 variable "vpc_cidr" {
  description = "The CIDR block for the VPC"
  type = string
+ default = "10.0.0.0/16"
 }
 
 variable "public_subnet_cidr_az1" {
@@ -19,6 +21,7 @@ variable "public_subnet_cidr_az1" {
 variable "public_subnet_cidr_az2" {
  description = "The CIDR block for the public subnet in availability zone 2"
  type = string
+ default = "10.0.2.0/24"
 }
 
 variable "regionalternate" {
