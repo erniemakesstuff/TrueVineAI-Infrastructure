@@ -6,6 +6,11 @@ variable "region" {
   default     = "us-west-2"
 }
 
+variable "vpc_cidr" {
+ description = "The CIDR block for the VPC"
+ type = string
+}
+
 variable "regionalternate" {
   description = "AWS region"
   default     = "us-east-1"
