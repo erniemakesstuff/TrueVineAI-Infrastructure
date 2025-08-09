@@ -1,197 +1,257 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
+# =============================================================================
+# US-WEST-2 VARIABLES
+# =============================================================================
+
 variable "region" {
   description = "AWS region"
   default     = "us-west-2"
 }
 
 variable "vpc_cidr" {
- description = "The CIDR block for the VPC"
- type = string
- default = "10.0.0.0/16"
+  description = "The CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
 }
 
 variable "public_subnet_cidr_az1" {
- description = "The CIDR block for the public subnet in availability zone 1"
- type = string
- default = "10.0.1.0/24"
+  description = "The CIDR block for the public subnet in availability zone 1"
+  type        = string
+  default     = "10.0.1.0/24"
 }
 
 variable "public_subnet_cidr_az2" {
- description = "The CIDR block for the public subnet in availability zone 2"
- type = string
- default = "10.0.2.0/24"
+  description = "The CIDR block for the public subnet in availability zone 2"
+  type        = string
+  default     = "10.0.2.0/24"
 }
 
+variable "key_name" {
+  description = "EC2 Key Pair name (must exist in both regions)"
+  type        = string
+  default     = "dev-ssh"
+}
+
+# =============================================================================
+# EU-WEST-2 VARIABLES
+# =============================================================================
+
+variable "region_eu_west_2" {
+  description = "AWS region for EU-West-2"
+  default     = "eu-west-2"
+}
+
+variable "vpc_cidr_eu" {
+  description = "The CIDR block for the VPC in EU-West-2"
+  type        = string
+  default     = "10.1.0.0/16"
+}
+
+variable "public_subnet_cidr_az1_eu" {
+  description = "The CIDR block for the public subnet in availability zone 1 (EU-West-2)"
+  type        = string
+  default     = "10.1.1.0/24"
+}
+
+variable "public_subnet_cidr_az2_eu" {
+  description = "The CIDR block for the public subnet in availability zone 2 (EU-West-2)"
+  type        = string
+  default     = "10.1.2.0/24"
+}
+
+variable "ami_id_us_west_2" {
+  description = "AMI ID for EC2 instances in US-West-2"
+  type        = string
+  default     = "ami-03b322c510c7cf8e3" # Amazon Linux 2 AMI for us-west-2
+}
+
+variable "ami_id_eu_west_2" {
+  description = "AMI ID for EC2 instances in EU-West-2"  
+  type        = string
+  default     = "ami-0b4c7755cdf0d9219" # Amazon Linux 2 AMI for eu-west-2
+}
+
+# =============================================================================
+# LEGACY VARIABLES (for backward compatibility)
+# =============================================================================
+
 variable "regionalternate" {
-  description = "AWS region"
+  description = "AWS region (legacy variable)"
   default     = "us-east-1"
 }
 
+# =============================================================================
+# SNS/SQS VARIABLES (US-WEST-2 ONLY)
+# =============================================================================
+
 variable "topic_name_ledger" {
- description = "Name of the SNS topic for ledger"
- default = "state-callback-topic" 
+  description = "Name of the SNS topic for ledger"
+  default     = "state-callback-topic"
 }
 
 variable "topic_name_media" {
- description = "Name of the SNS topic for media"
- default = "media-topic" 
+  description = "Name of the SNS topic for media"
+  default     = "media-topic"
 }
 
 variable "topic_name_published" {
- description = "Name of the SNS topic for published media"
- default = "publish-complete" 
+  description = "Name of the SNS topic for published media"
+  default     = "publish-complete"
 }
 
 variable "sqs_visibility_timeout" {
- description = "Visibility timeout seconds"
- default = 180
+  description = "Visibility timeout seconds"
+  default     = 180
 }
 
 variable "sqs_visibility_timeout_media_text" {
- description = "Visibility timeout seconds for media text queues"
- default = 180
+  description = "Visibility timeout seconds for media text queues"
+  default     = 180
 }
 
 # TODO: Adjust this based on actual metrics for render times.
 variable "sqs_visibility_timeout_media_render" {
- description = "Visibility timeout seconds for media render queues"
- default = 2700
+  description = "Visibility timeout seconds for media render queues"
+  default     = 2700
 }
 
 variable "sqs_visibility_timeout_media_image" {
- description = "Visibility timeout seconds for media image queues"
- default = 600
+  description = "Visibility timeout seconds for media image queues"
+  default     = 600
 }
 
 variable "sqs_visibility_timeout_media_video" {
- description = "Visibility timeout seconds for media video queues"
- default = 1800
+  description = "Visibility timeout seconds for media video queues"
+  default     = 1800
 }
 
 variable "sqs_visibility_timeout_media_audio" {
- description = "Visibility timeout seconds for media audio queues"
- default = 600
+  description = "Visibility timeout seconds for media audio queues"
+  default     = 600
 }
 
 variable "sqs_max_receive_count" {
- description = "Max times to recycle a message before putting onto DLQ"
- default = 15
+  description = "Max times to recycle a message before putting onto DLQ"
+  default     = 15
 }
 
 variable "sqs_name_ledger" {
- description = "Name of the SQS for ledger"
- default = "state-callback-queue" 
+  description = "Name of the SQS for ledger"
+  default     = "state-callback-queue"
 }
 
 variable "sqs_name_dlq_ledger" {
- description = "Name of the SQS for DLQ ledger"
- default = "state-callback-dlq-queue" 
+  description = "Name of the SQS for DLQ ledger"
+  default     = "state-callback-dlq-queue"
 }
 
 variable "sqs_name_published" {
- description = "Name of the SQS for published events"
- default = "publish-complete-queue" 
+  description = "Name of the SQS for published events"
+  default     = "publish-complete-queue"
 }
 
 variable "sqs_name_dlq_published" {
- description = "Name of the SQS for DLQ published events"
- default = "publish-complete-dlq-queue" 
+  description = "Name of the SQS for DLQ published events"
+  default     = "publish-complete-dlq-queue"
 }
 
 variable "sqs_name_media_text" {
- description = "Name of the SQS for media text"
- default = "media-text-queue" 
+  description = "Name of the SQS for media text"
+  default     = "media-text-queue"
 }
 
 variable "sqs_name_dlq_media_text" {
- description = "Name of the SQS for DLQ media-text"
- default = "media-text-dlq-queue" 
+  description = "Name of the SQS for DLQ media-text"
+  default     = "media-text-dlq-queue"
 }
 
-
 variable "sqs_name_media_render" {
- description = "Name of the SQS for media render"
- default = "media-render-queue" 
+  description = "Name of the SQS for media render"
+  default     = "media-render-queue"
 }
 
 variable "sqs_name_dlq_media_render" {
- description = "Name of the SQS for DLQ render"
- default = "media-render-dlq-queue" 
+  description = "Name of the SQS for DLQ render"
+  default     = "media-render-dlq-queue"
 }
 
 variable "sqs_name_media_image" {
- description = "Name of the SQS for media image"
- default = "media-image-queue" 
+  description = "Name of the SQS for media image"
+  default     = "media-image-queue"
 }
 
 variable "sqs_name_dlq_media_image" {
- description = "Name of the SQS for DLQ image"
- default = "media-image-dlq-queue" 
+  description = "Name of the SQS for DLQ image"
+  default     = "media-image-dlq-queue"
 }
 
 variable "sqs_name_media_video" {
- description = "Name of the SQS for media video"
- default = "media-video-queue" 
+  description = "Name of the SQS for media video"
+  default     = "media-video-queue"
 }
 
 variable "sqs_name_dlq_media_video" {
- description = "Name of the SQS for DLQ video"
- default = "media-video-dlq-queue" 
+  description = "Name of the SQS for DLQ video"
+  default     = "media-video-dlq-queue"
 }
 
 variable "sqs_name_media_sfx" {
- description = "Name of the SQS for media sound effects"
- default = "media-sfx-queue" 
+  description = "Name of the SQS for media sound effects"
+  default     = "media-sfx-queue"
 }
 
 variable "sqs_name_dlq_media_sfx" {
- description = "Name of the SQS for DLQ sound effects"
- default = "media-sfx-dlq-queue" 
+  description = "Name of the SQS for DLQ sound effects"
+  default     = "media-sfx-dlq-queue"
 }
 
 variable "sqs_name_media_music" {
- description = "Name of the SQS for media music"
- default = "media-music-queue" 
+  description = "Name of the SQS for media music"
+  default     = "media-music-queue"
 }
 
 variable "sqs_name_dlq_media_music" {
- description = "Name of the SQS for DLQ music"
- default = "media-music-dlq-queue" 
+  description = "Name of the SQS for DLQ music"
+  default     = "media-music-dlq-queue"
 }
 
 variable "sqs_name_media_vocal" {
- description = "Name of the SQS for media vocal"
- default = "media-vocal-queue" 
+  description = "Name of the SQS for media vocal"
+  default     = "media-vocal-queue"
 }
 
 variable "sqs_name_dlq_media_vocal" {
- description = "Name of the SQS for DLQ vocal"
- default = "media-vocal-dlq-queue" 
+  description = "Name of the SQS for DLQ vocal"
+  default     = "media-vocal-dlq-queue"
 }
 
 variable "sqs_name_media_context" {
- description = "Name of the SQS for media context"
- default = "media-context-queue" 
+  description = "Name of the SQS for media context"
+  default     = "media-context-queue"
 }
 
 variable "sqs_name_dlq_media_context" {
- description = "Name of the SQS for DLQ context"
- default = "media-context-dlq-queue" 
+  description = "Name of the SQS for DLQ context"
+  default     = "media-context-dlq-queue"
 }
 
+# =============================================================================
+# S3 VARIABLES (US-WEST-2 ONLY)
+# =============================================================================
+
 variable "s3_media_bucket_name" {
- description = "Name for the S3 bucket that stores generated media."
- default = "truevine-media-storage" 
+  description = "Name for the S3 bucket that stores generated media."
+  default     = "truevine-media-storage"
 }
 
 variable "s3_tmp_bucket_name" {
- description = "Name for the S3 bucket that stores transitory files."
- default = "truevine-tmp-storage"
+  description = "Name for the S3 bucket that stores transitory files."
+  default     = "truevine-tmp-storage"
 }
 
 variable "s3_web_bucket_name" {
- description = "Name for the S3 bucket that serves SPA."
- default = "kherem.com"
+  description = "Name for the S3 bucket that serves SPA."
+  default     = "kherem.com"
 }
